@@ -2,6 +2,10 @@
   "name": "blog-app_server",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "vercel-build": "echo 'No build step needed for backend functions'"
+  }
   "keywords": [],
   "author": "",
   "license": "ISC",
