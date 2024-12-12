@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "vercel-build": "echo 'No build step needed for backend functions'"
-  }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
