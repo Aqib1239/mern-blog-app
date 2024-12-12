@@ -13,7 +13,7 @@ const fileUpload = require('express-fileupload');
 const app = express();
 app.use(express.json({extended: true}));
 app.use(express.urlencoded({extended: true}));
-app.use(cors({ credentials: true, origin: 'http://localhost:3000', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }));
+app.use(cors({ credentials: true, origin: 'https://mern-blog-app-olive.vercel.app', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }));
 app.use(fileUpload());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
