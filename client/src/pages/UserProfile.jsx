@@ -6,126 +6,116 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const UserProfile = () => {
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [avatar, setAvatar] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [isAvatarTouched, setIsAvatarTouched] = useState(false);
-  const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const { currentUser } = useContext(UserContext);
   const token = currentUser?.token;
 
-  // Redirect to login page for any user who is not logged in
+  // Redirect to login page for unauthorized users
   useEffect(() => {
     if (!token) {
       navigate("/login");
     }
   }, [token, navigate]);
 
-  // Fetch user details (including updated avatar)
+  // Fetch user details
   useEffect(() => {
-    // Check if the avatar URL is stored in localStorage
     const storedAvatar = localStorage.getItem("userAvatar");
-  
     if (storedAvatar) {
-      setAvatarUrl(storedAvatar); // If found, use the stored avatar URL
+      setAvatarUrl(storedAvatar);
     } else {
-      // If no avatar URL is found in localStorage, fetch it from the API
-      const getUser = async () => {
+      const fetchUserDetails = async () => {
         try {
           const response = await axios.get(
             `${process.env.REACT_APP_BASE_URL}/users/${currentUser?.id}`,
-            { withCredentials: true, headers: { Authorization: `Bearer ${token}` } }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
   
-          const { name, email, avatar } = response.data;
-          setName(name);
-          setEmail(email);
+          const { avatar } = response.data;
+          const finalAvatarUrl = avatar || `${process.env.REACT_APP_ASSETS_URL}/uploads/default-avatar.jpg`;
   
-          // If no avatar is set, fall back to a default avatar
-          setAvatarUrl(`${process.env.REACT_APP_ASSETS_URL}/uploads/${avatar || 'default-avatar.jpg'}`);
+          // Save to localStorage and state
+          localStorage.setItem("userAvatar", finalAvatarUrl);
+          setAvatarUrl(finalAvatarUrl);
         } catch (error) {
           console.error("Error fetching user details: ", error);
-          setError(error.response?.data?.message || "Failed to fetch user details.");
+          toast.error("Failed to fetch user details.");
         }
       };
   
-      getUser();
+      if (currentUser?.id) fetchUserDetails();
     }
-  }, [currentUser?.id, token]); // Only fetch user info if the currentUser id is available
+  }, [currentUser?.id, token]);
   
-  // Change avatar handler
+
+  // Handle Avatar Change
   const changedAvatarHandler = async () => {
     setIsAvatarTouched(false);
     if (!avatar) {
-      setError("Please select a valid avatar file.");
+      toast.error("Please select a valid avatar file.");
       return;
     }
   
     try {
-      const postsData = new FormData();
-      postsData.append("avatar", avatar);
+      const formData = new FormData();
+      formData.append("avatar", avatar);
   
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/users/change-avatar`,
-        postsData,
+        formData,
         { withCredentials: true, headers: { Authorization: `Bearer ${token}` } }
       );
   
       if (response?.data?.updatedAvatar) {
-        const newAvatarUrl = `${process.env.REACT_APP_ASSETS_URL}/uploads/${response.data.updatedAvatar}`;
-        // Store the avatar URL in localStorage
+        const newAvatarUrl = response.data.updatedAvatar;
+  
+        // Save the updated avatar URL to localStorage and state
         localStorage.setItem("userAvatar", newAvatarUrl);
-        setAvatarUrl(newAvatarUrl); // Update state with the new avatar URL
+        setAvatarUrl(newAvatarUrl);
+  
         toast.success("Avatar updated successfully!");
       } else {
         throw new Error("Unexpected response format.");
       }
     } catch (error) {
       console.error("Error changing avatar: ", error);
-      // setError(error.response?.data?.message || "Failed to change avatar.");
-      toast.error(error.response?.data?.message);
+      toast.error(error.response?.data?.message || "Failed to change avatar.");
     }
   };
-  
-  const updateUserDetails = async (e) => {
+    
+
+  // Handle User Detail Updates
+  const handleUserUpdate = async (e) => {
     e.preventDefault();
-  
+
+    if (userData.newPassword !== userData.confirmPassword) {
+      toast.error("New password and confirm password do not match.");
+      return;
+    }
+
     try {
-      const userData = new FormData();
-      userData.set("name", name);
-      userData.set("email", email);
-      userData.set("currentPassword", currentPassword);
-      userData.set("newPassword", newPassword);
-      userData.set("confirmPassword", confirmPassword);
-  
       const response = await axios.patch(
         `${process.env.REACT_APP_BASE_URL}/users/edit-user`,
         userData,
-        { withCredentials: true, headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (response.status === 200) {
-        // Optional: Clear the form fields after successful update
-        setName("");
-        setEmail("");
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-  
-        navigate("/logout"); // Redirect to logout or wherever you'd like
         toast.success("User details updated successfully!");
+        navigate("/logout");
       }
     } catch (error) {
-      // Handle any error, including when error.response is undefined
-      const errorMessage = error.response?.data?.message || "Something went wrong!";
-      console.log(errorMessage);
-      toast.error(errorMessage);
+      toast.error(error.response?.data?.message || "Failed to update user details.");
     }
   };
 
@@ -139,7 +129,7 @@ const UserProfile = () => {
           <div className="avatar_wrapper">
             <div className="profile_avatar">
               <img
-                src={avatarUrl || `${process.env.REACT_APP_ASSETS_URL}/uploads/default-avatar.jpg`} // Default avatar fallback
+                src={avatarUrl || `${process.env.REACT_APP_ASSETS_URL}/uploads/default-avatar.jpg`}
                 alt="User Avatar"
               />
             </div>
@@ -156,12 +146,8 @@ const UserProfile = () => {
                 <FaEdit />
               </label>
             </form>
-
             {isAvatarTouched && (
-              <button
-                className="profile_avatar-btn"
-                onClick={changedAvatarHandler}
-              >
+              <button className="profile_avatar-btn" onClick={changedAvatarHandler}>
                 <FaCheck />
               </button>
             )}
@@ -170,37 +156,36 @@ const UserProfile = () => {
           <h1>{currentUser?.name}</h1>
 
           {/* Form to update user details */}
-          <form className="form profile_form" onSubmit={updateUserDetails}>
-            {error && <p className="form_error-message">{error}</p>}
+          <form className="form profile_form" onSubmit={handleUserUpdate}>
             <input
               type="text"
               placeholder="Full Name"
-              value={name || ""}
-              onChange={(e) => setName(e.target.value)}
+              value={userData.name}
+              onChange={(e) => setUserData({ ...userData, name: e.target.value })}
             />
             <input
               type="email"
               placeholder="Email"
-              value={email || ""}
-              onChange={(e) => setEmail(e.target.value)}
+              value={userData.email}
+              onChange={(e) => setUserData({ ...userData, email: e.target.value })}
             />
             <input
               type="password"
               placeholder="Current Password"
-              value={currentPassword || ""}
-              onChange={(e) => setCurrentPassword(e.target.value)}
+              value={userData.currentPassword}
+              onChange={(e) => setUserData({ ...userData, currentPassword: e.target.value })}
             />
             <input
               type="password"
               placeholder="New Password"
-              value={newPassword || ""}
-              onChange={(e) => setNewPassword(e.target.value)}
+              value={userData.newPassword}
+              onChange={(e) => setUserData({ ...userData, newPassword: e.target.value })}
             />
             <input
               type="password"
               placeholder="Confirm Password"
-              value={confirmPassword || ""}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={userData.confirmPassword}
+              onChange={(e) => setUserData({ ...userData, confirmPassword: e.target.value })}
             />
             <button className="btn primary" type="submit">
               Update Details
@@ -213,4 +198,3 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-
