@@ -2,6 +2,7 @@ const express = require('express');
 const {connect} = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
 // const upload = require('express-fileupload');
 
 const userRoutes = require('./routes/userRoutes');
@@ -14,8 +15,10 @@ const app = express();
 app.use(express.json({extended: true}));
 app.use(express.urlencoded({extended: true}));
 app.use(cors({ credentials: true, origin: 'https://mern-blog-app-olive.vercel.app', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }));
-app.use(fileUpload());
-app.use('/uploads', express.static(__dirname + '/uploads'));
+app.use(fileUpload({useTempFiles: true, // Save files temporarily
+    tempFileDir: "/tmp/"}));
+// app.use('/uploads', express.static(__dirname + '/uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
