@@ -5,7 +5,16 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const { v4: uuid } = require("uuid");
+const cloudinary = require("cloudinary").v2;
+require('dotenv').config();
 
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // * REGISTER NEW USER
 const registerUser = async (req, res, next) => {
@@ -119,9 +128,7 @@ const getAuthors = async (req, res, next) => {
 const changeAvatar = async (req, res, next) => {
   try {
     if (!req.files || !req.files.avatar) {
-      return next(
-        new HttpError("No file uploaded! Please choose an image.", 422)
-      );
+      return next(new HttpError("No file uploaded! Please choose an image.", 422));
     }
 
     const avatar = req.files.avatar;
@@ -131,40 +138,34 @@ const changeAvatar = async (req, res, next) => {
       return next(new HttpError("Image size must be less than 5MB.", 422));
     }
 
-    // Generate a new file name
-    const fileExtension = avatar.name.split(".").pop();
-    const newFileName = `${
-      avatar.name.split(".")[0]
-    }-${uuid()}.${fileExtension}`;
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(avatar.tempFilePath, {
+      folder: "avatars",
+      public_id: `avatar-${req.user.id}-${Date.now()}`,
+      resource_type: "image",
+    });
 
-    // Save file to the uploads folder
-    const uploadPath = path.join(__dirname, "..", "uploads", newFileName);
-    avatar.mv(uploadPath, async (err) => {
-      if (err) {
-        return next(new HttpError("Failed to upload file.", 500));
-      }
+    // Update user in database
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar: result.secure_url },
+      { new: true }
+    );
 
-      // Update user in database
-      const updatedUser = await User.findByIdAndUpdate(
-        req.user.id,
-        { avatar: newFileName },
-        { new: true }
-      );
+    if (!updatedUser) {
+      return next(new HttpError("Avatar could not be updated.", 422));
+    }
 
-      if (!updatedUser) {
-        return next(new HttpError("Avatar could not be updated.", 422));
-      }
-
-      res.status(200).json({
-        status: "success",
-        message: "Avatar updated successfully",
-        updatedAvatar: updatedUser.avatar,
-      });
+    res.status(200).json({
+      status: "success",
+      message: "Avatar updated successfully",
+      updatedAvatar: updatedUser.avatar,
     });
   } catch (error) {
     return next(new HttpError(error.message || "Something went wrong.", 500));
   }
 };
+
 
 // * EDIT USER DETAILS
 const editUser = async (req, res, next) => {
