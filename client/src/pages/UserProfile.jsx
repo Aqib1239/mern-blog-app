@@ -28,35 +28,30 @@ const UserProfile = () => {
     }
   }, [token, navigate]);
 
-  // Fetch user details
+  // Fetch user details when currentUser changes (including avatar)
   useEffect(() => {
-    const storedAvatar = localStorage.getItem("userAvatar");
-    if (storedAvatar) {
-      setAvatarUrl(storedAvatar);
-    } else {
-      const fetchUserDetails = async () => {
-        try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/users/${currentUser?.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-  
-          const { avatar } = response.data;
-          const finalAvatarUrl = avatar || `${process.env.REACT_APP_ASSETS_URL}/uploads/default-avatar.jpg`;
-  
-          // Save to localStorage and state
-          localStorage.setItem("userAvatar", finalAvatarUrl);
-          setAvatarUrl(finalAvatarUrl);
-        } catch (error) {
-          console.error("Error fetching user details: ", error);
-          toast.error("Failed to fetch user details.");
-        }
-      };
-  
-      if (currentUser?.id) fetchUserDetails();
-    }
-  }, [currentUser?.id, token]);
-  
+    if (!currentUser?.id) return;
+
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/users/${currentUser.id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const avatar = response.data?.user?.avatar;
+        const finalAvatarUrl = avatar || `${process.env.REACT_APP_ASSETS_URL}/uploads/default-avatar.jpg`;
+
+        // Update avatar state and localStorage
+        localStorage.setItem("userAvatar", finalAvatarUrl);
+        setAvatarUrl(finalAvatarUrl);
+      } catch (error) {
+        console.error("Error fetching user details: ", error);
+        toast.error("Failed to fetch user details.");
+      }
+    };
+
+    fetchUserDetails();
+  }, [currentUser, token]); // Ensure this runs whenever currentUser changes
 
   // Handle Avatar Change
   const changedAvatarHandler = async () => {
@@ -65,24 +60,24 @@ const UserProfile = () => {
       toast.error("Please select a valid avatar file.");
       return;
     }
-  
+
     try {
       const formData = new FormData();
       formData.append("avatar", avatar);
-  
+
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/users/change-avatar`,
         formData,
         { withCredentials: true, headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (response?.data?.updatedAvatar) {
         const newAvatarUrl = response.data.updatedAvatar;
-  
+
         // Save the updated avatar URL to localStorage and state
         localStorage.setItem("userAvatar", newAvatarUrl);
         setAvatarUrl(newAvatarUrl);
-  
+
         toast.success("Avatar updated successfully!");
       } else {
         throw new Error("Unexpected response format.");
@@ -92,7 +87,6 @@ const UserProfile = () => {
       toast.error(error.response?.data?.message || "Failed to change avatar.");
     }
   };
-    
 
   // Handle User Detail Updates
   const handleUserUpdate = async (e) => {
