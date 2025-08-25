@@ -1,110 +1,153 @@
-# Blog Application Assignment
+# mern-blog-app
 
-## Overview
-This project is a blog application built using the MERN stack (MongoDB, Express.js, React, Node.js). The application allows users to register, log in, and manage blog posts. Users can create, read, update, and delete (CRUD) posts as well as upload profile pictures. The project is deployed using Vercel (frontend) and Vercel Serverless Functions (backend). Cloudinary is used for image upload instead of AWS S3.
+![React](https://img.shields.io/badge/-React-blue?logo=react&logoColor=white)
+
+## 📝 Description
+
+Develop a full-stack blog application using the MERN stack. This project leverages React for a dynamic and responsive user interface. Key features include database integration for persistent storage of blog posts, robust authentication to manage user access, comprehensive testing to ensure application stability, and a web-based interface for easy accessibility.
+
+## ✨ Features
+
+- 🗄️ Database
+- 🔐 Auth
+- 🧪 Testing
+- 🕸️ Web
+
+
+## 🛠️ Tech Stack
+
+- ⚛️ React
+
+
+## 📦 Key Dependencies
+
+```
+@ckeditor/ckeditor5-build-classic: ^44.0.0
+@ckeditor/ckeditor5-react: ^9.4.0
+@testing-library/jest-dom: ^5.17.0
+@testing-library/react: ^13.4.0
+@testing-library/user-event: ^13.5.0
+@tinymce/tinymce-react: ^5.1.1
+axios: ^1.7.9
+draft-js: ^0.11.7
+javascript-time-ago: ^2.5.11
+react: ^18.3.1
+react-dom: ^18.3.1
+react-icons: ^5.3.0
+react-quill: ^2.0.0
+react-router-dom: ^6.27.0
+react-scripts: 5.0.1
+```
+
+## 🚀 Run Commands
+
+- **start**: `npm run start`
+- **build**: `npm run build`
+- **test**: `npm run test`
+- **eject**: `npm run eject`
+- **THIS_MAKEFILE_PATH**: `make THIS_MAKEFILE_PATH`
+- **THIS_DIR**: `make THIS_DIR`
+- **install**: `make install`
+- **node_modules**: `make node_modules`
+- **lint**: `make lint`
+- **test-node**: `make test-node`
+- **test-browser**: `make test-browser`
+- **test**: `make test`
+- **coveralls**: `make coveralls`
+
+
+## 📁 Project Structure
+
+```
+.
+├── client
+│   ├── package.json
+│   ├── public
+│   │   └── index.html
+│   └── src
+│       ├── assets
+│       │   ├── avatar1.jpg
+│       │   ├── avatar2.jpg
+│       │   ├── avatar3.jpg
+│       │   ├── avatar4.jpg
+│       │   ├── avatar5.jpg
+│       │   ├── blog1.jpg
+│       │   ├── blog2.jpg
+│       │   ├── blog3.jpg
+│       │   ├── loading.gif
+│       │   ├── logo.png
+│       │   └── thumbnail.jpg
+│       ├── components
+│       │   ├── CustomEditor.jsx
+│       │   ├── Footer.jsx
+│       │   ├── Header.jsx
+│       │   ├── Layout.jsx
+│       │   └── Loader.jsx
+│       ├── context
+│       │   └── userContext.jsx
+│       ├── data.js
+│       ├── index.css
+│       ├── index.js
+│       └── pages
+│           ├── AuthorPosts.jsx
+│           ├── Authors.jsx
+│           ├── CategoryPosts.jsx
+│           ├── CreatePost.jsx
+│           ├── Dashboard.jsx
+│           ├── DeletePost.jsx
+│           ├── EditPost.jsx
+│           ├── ErrorPage.jsx
+│           ├── Home.jsx
+│           ├── Login.jsx
+│           ├── Logout.jsx
+│           ├── PostAuthor.jsx
+│           ├── PostDetails.jsx
+│           ├── PostItem.jsx
+│           ├── Posts.jsx
+│           ├── Register.jsx
+│           └── UserProfile.jsx
+└── server
+    ├── controllers
+    │   ├── postController.js
+    │   └── userController.js
+    ├── index.js
+    ├── middleware
+    │   ├── authMiddleware.js
+    │   └── errorMiddleware.js
+    ├── models
+    │   ├── errorModel.js
+    │   ├── postModel.js
+    │   └── userModel.js
+    ├── package.json
+    ├── routes
+    │   ├── postRoutes.js
+    │   └── userRoutes.js
+    ├── uploads
+    │   ├── abc-95085f63-a0f9-419d-a489-4a7c5c712f67.png
+    │   ├── abc.03449a18-9b9b-4dc3-843a-eed0f7c00d21.png
+    └── vercel.json
+```
+
+## 🛠️ Development Setup
+
+### Node.js/JavaScript Setup
+1. Install Node.js (v18+ recommended)
+2. Install dependencies: `npm install` or `yarn install`
+3. Start development server: (Check scripts in `package.json`, e.g., `npm run dev`)
+
+
+## 👥 Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. **Fork** the repository
+2. **Clone** your fork: `git clone https://github.com/aqib1239/mern-blog-app.git`
+3. **Create** a new branch: `git checkout -b feature/your-feature`
+4. **Commit** your changes: `git commit -am 'Add some feature'`
+5. **Push** to your branch: `git push origin feature/your-feature`
+6. **Open** a pull request
+
+Please ensure your code follows the project's style guidelines and includes tests where applicable.
 
 ---
-
-## Features
-### User Authentication
-- User registration and login.
-- Passwords are securely hashed using `bcrypt`.
-- JSON Web Tokens (JWT) are used for securing endpoints.
-
-### Post Management
-- Authenticated users can create, update, and delete posts.
-- Posts include a title, content, and timestamp.
-- Public access to view all posts or a specific post.
-
-### Image Upload
-- Users can upload profile pictures and post images.
-- Images are stored on Cloudinary.
-
-### Deployment
-- Frontend and backend deployed on Vercel.
-
----
-
-## Installation Instructions
-### Prerequisites
-- Node.js (version 16 or higher)
-- MongoDB instance (local or cloud-based, e.g., MongoDB Atlas)
-- Cloudinary account (for image storage)
-
-### Backend Setup
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd blog-application-backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the root directory and configure the following:
-   ```env
-   PORT=5000
-   MONGO_URI=<your-mongodb-uri>
-   JWT_SECRET=<your-jwt-secret>
-   CLOUDINARY_CLOUD_NAME=<your-cloudinary-cloud-name>
-   CLOUDINARY_API_KEY=<your-cloudinary-api-key>
-   CLOUDINARY_API_SECRET=<your-cloudinary-api-secret>
-   ```
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-### Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd ../blog-application-frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the root directory and configure the following:
-   ```env
-   REACT_APP_BACKEND_URL=<backend-api-url>
-   ```
-4. Start the development server:
-   ```bash
-   npm start
-   ```
-
----
-
-## Deployment
-### Vercel Deployment
-#### Backend
-1. Navigate to the backend directory.
-2. Deploy the backend using Vercel:
-   ```bash
-   vercel deploy
-   ```
-3. Configure environment variables on Vercel.
-
-#### Frontend
-1. Navigate to the frontend directory.
-2. Deploy the frontend using Vercel:
-   ```bash
-   vercel deploy
-   ```
-3. Configure environment variables on Vercel.
-
----
-
-## API Endpoints
-### User Authentication
-- `POST /api/register`: Register a new user.
-- `POST /api/login`: Authenticate a user and return a JWT.
-
-### Post Management
-- `POST /api/posts`: Create a new post (authenticated users only).
-- `GET /api/posts`: Retrieve all posts (publicly accessible).
-- `GET /api/posts/:id`: Retrieve a single post by ID (publicly accessible).
-- `PUT /api/posts/:id`: Update a post by ID (authenticated users only).
-- `DELETE /api/posts/:id`: Delete a post by ID (authenticated users only).
-
----
+*This README was generated with ❤️ by ReadmeBuddy*
