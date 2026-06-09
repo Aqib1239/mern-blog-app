@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     credentials: true,
-    origin: 'https://mern-blog-app-olive.vercel.app',
+    origin: 'https://mern-blog-app-sand.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   })
 );
