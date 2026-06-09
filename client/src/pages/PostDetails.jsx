@@ -6,15 +6,13 @@ import Loader from '../components/Loader';
 import DeletePost from './DeletePost';
 import axios from 'axios';
 
-
 const PostDetails = () => {
-  const {id} = useParams();
+  const { id } = useParams();
   const [post, setPost] = useState('');
-  // const [creatorID, setCreatorID] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const {currentUser} = useContext(UserContext);
+  const { currentUser } = useContext(UserContext);
 
   useEffect(() => {
     const getPost = async () => {
@@ -22,6 +20,7 @@ const PostDetails = () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/posts/post/${id}`);
         setPost(response?.data?.post);
+        console.log("Api Response PostDetails :",response?.data?.post);
       } catch (error) {
         console.error("Error fetching post:", error);
         setError("Failed to fetch post details. Please try again later.");
@@ -31,9 +30,16 @@ const PostDetails = () => {
     };
 
     getPost();
-  }, [id]); 
+  }, [id]);
 
-  if(isLoading) return <Loader />
+  if (isLoading) return <Loader />;
+
+  // Construct image URL with conditional logic
+  const imageUrl = post?.thumbnail ? 
+    (post.thumbnail.includes("res.cloudinary.com") ? 
+      post.thumbnail : 
+      `${process.env.REACT_APP_ASSETS_URL}/uploads/${post.thumbnail}`
+    ) : 'path/to/default/image.jpg';
 
   return (
     <section className='post-detail'>
@@ -48,7 +54,7 @@ const PostDetails = () => {
         </div>
         <h1>{post?.title}</h1>
         <div className="post-detail_thumbnail">
-          <img src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${post?.thumbnail}`} alt="" />
+          <img src={imageUrl} alt={post?.title} />
         </div>
         <div dangerouslySetInnerHTML={{ __html: post?.desc }} />
        </div>
@@ -57,4 +63,4 @@ const PostDetails = () => {
   )
 }
 
-export default PostDetails
+export default PostDetails;

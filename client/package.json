@@ -10,6 +10,8 @@
     "@testing-library/user-event": "^13.5.0",
     "@tinymce/tinymce-react": "^5.1.1",
     "axios": "^1.7.9",
+    "baseline-browser-mapping": "^2.10.34",
+    "caniuse-lite": "^1.0.30001797",
     "draft-js": "^0.11.7",
     "javascript-time-ago": "^2.5.11",
     "react": "^18.3.1",
@@ -45,5 +47,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }

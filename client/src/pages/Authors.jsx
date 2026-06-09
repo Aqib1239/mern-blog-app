@@ -36,20 +36,28 @@ const Authors = () => {
         <p className="error">{error}</p>
       ) : authors.length > 0 ? (
         <div className="container authors_container">
-          {authors.map(({ _id: id, avatar, name, posts }) => (
-            <Link key={id} to={`/posts/users/${id}`} className="authors">
-              <div className="author_avatar">
-                <img
-                  src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${avatar || "default-avatar.png"}`}
-                  alt='avatar'
-                />
-              </div>
-              <div className="author_info">
-                <h4>{name || "Unknown Author"}</h4>
-                <p>{posts || 0} posts</p>
-              </div>
-            </Link>
-          ))}
+          {authors.map(({ _id: id, avatar, name, posts }) => {
+            // Check if the avatar is a Cloudinary URL or a local image path
+            const avatarUrl =
+              avatar && avatar.startsWith('http')
+                ? avatar // If it's a Cloudinary URL or external URL
+                : `${process.env.REACT_APP_ASSETS_URL}/uploads/${avatar || "default-avatar.png"}`; // Local fallback
+
+            return (
+              <Link key={id} to={`/posts/users/${id}`} className="authors">
+                <div className="author_avatar">
+                  <img
+                    src={avatarUrl}
+                    alt="avatar"
+                  />
+                </div>
+                <div className="author_info">
+                  <h4>{name || "Unknown Author"}</h4>
+                  <p>{posts || 0} posts</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       ) : (
         <h2 className="center">No Users / Authors Found</h2>
@@ -59,3 +67,4 @@ const Authors = () => {
 };
 
 export default Authors;
+
